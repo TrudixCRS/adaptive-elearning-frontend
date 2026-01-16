@@ -1,0 +1,176 @@
+:root {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0b1220;
+  color: #e6eefc;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.sub {
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.h2 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.space {
+  justify-content: space-between;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.25);
+  color: #e6eefc;
+  outline: none;
+}
+
+.input:focus {
+  border-color: rgba(255,255,255,0.35);
+}
+
+.btn {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.10);
+  color: #e6eefc;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  background: rgba(255, 70, 70, 0.15);
+  border: 1px solid rgba(255, 70, 70, 0.35);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.hint {
+  opacity: 0.85;
+  font-size: 13px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.listItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(0,0,0,0.18);
+}
+
+.itemTitle {
+  font-weight: 700;
+}
+
+.itemDesc {
+  opacity: 0.85;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.recBox {
+  margin-top: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(0,0,0,0.18);
+}
+
+.recTitle {
+  font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  font-size: 12px;
+}
+
+.recReason {
+  margin-top: 10px;
+  line-height: 1.35;
+  opacity: 0.95;
+}
+
+.footer {
+  margin-top: 18px;
+  opacity: 0.75;
+  font-size: 12px;
+}
