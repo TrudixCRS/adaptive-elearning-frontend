@@ -13,6 +13,20 @@ export function clearToken() {
   localStorage.removeItem("token");
 }
 
+export async function getMe() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  const res = await fetch(`${API_URL}/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) return null;
+  return await res.json();
+}
+
 async function request(path, opts = {}) {
   const url = `${API_BASE}${path}`;
 
@@ -59,7 +73,6 @@ async function request(path, opts = {}) {
   return data;
 }
 
-// ✅ Keep your api object as-is, just add me() and fix /courses redirect
 export const api = {
   getToken,
   setToken,
