@@ -1,19 +1,24 @@
-// frontend/src/api.js
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
 
-function getToken() {
+// ✅ Named exports (your App.jsx imports these)
+export function getToken() {
   return localStorage.getItem("token") || "";
 }
-function setToken(token) {
+
+export function setToken(token) {
   localStorage.setItem("token", token);
 }
-function clearToken() {
+
+export function clearToken() {
   localStorage.removeItem("token");
 }
 
 async function request(path, opts = {}) {
   const url = `${API_BASE}${path}`;
-  const headers = { ...(opts.headers || {}) };
+
+  const headers = {
+    ...(opts.headers || {}),
+  };
 
   // Only set JSON content-type when sending a JSON body
   if (opts.body !== undefined) {
@@ -54,8 +59,8 @@ async function request(path, opts = {}) {
   return data;
 }
 
+// ✅ Keep your api object as-is, just add me() and fix /courses redirect
 export const api = {
-  // token helpers (optional for UI)
   getToken,
   setToken,
   clearToken,
@@ -68,25 +73,18 @@ export const api = {
       { method: "POST" }
     ),
 
-  // ✅ Auto-store token after successful login
-  login: async (email, password) => {
-    const data = await request(
+  login: (email, password) =>
+    request(
       `/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(
         password
       )}`,
       { method: "POST" }
-    );
+    ),
 
-    if (data?.access_token) {
-      setToken(data.access_token);
-    }
-    return data;
-  },
+  // ✅ role check
+  me: () => request(`/auth/me`, { auth: true }),
 
-  // ✅ Works if you added GET /auth/me on backend
-  me: () => request("/auth/me", { auth: true }),
-
-  // Avoid 307 redirects: use /courses (no trailing slash) if your backend redirects
+  // ✅ Use /courses (no trailing slash) to avoid 307 redirects
   listCourses: () => request("/courses"),
   getCourse: (courseId) => request(`/courses/${courseId}`),
   getLesson: (lessonId) => request(`/lessons/${lessonId}`),
