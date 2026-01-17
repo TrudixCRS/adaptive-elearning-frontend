@@ -2,7 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { api } from "./api";
-import Admin from "./pages/Admin";
+
+/**
+ * Progress storage strategy:
+ * - We don't assume backend returns per-lesson "completed".
+ * - We store completion in localStorage (scoped per user token + courseId).
+ * - If later your backend returns flags, you can merge/override easily.
+ */
 
 function lsKey(courseId) {
   const t = api.getToken() || "anon";
@@ -43,7 +49,7 @@ function Pill({ children }) {
   return <span className="pill">{children}</span>;
 }
 
-function Header({ authed, onLogout, showAdmin, onAdmin }) {
+function Header({ authed, onLogout }) {
   return (
     <div className="header">
       <div>
@@ -52,17 +58,9 @@ function Header({ authed, onLogout, showAdmin, onAdmin }) {
       </div>
       <div className="row">
         {authed ? (
-          <>
-            {showAdmin ? (
-              <Button onClick={onAdmin} className="btn-ghost">
-                Admin
-              </Button>
-            ) : null}
-
-            <Button onClick={onLogout} className="btn-ghost">
-              Logout
-            </Button>
-          </>
+          <Button onClick={onLogout} className="btn-ghost">
+            Logout
+          </Button>
         ) : null}
       </div>
     </div>
@@ -721,9 +719,6 @@ export default function App() {
   const [authed, setAuthed] = useState(!!api.getToken());
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [openLessonId, setOpenLessonId] = useState(null);
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
 
   function onAuthed() {
     setAuthed(true);
@@ -734,58 +729,23 @@ export default function App() {
     setAuthed(false);
     setSelectedCourse(null);
     setOpenLessonId(null);
-    setAdminOpen(false);
-    setAuthedTick((x) => x + 1);
   }
-
-useEffect(() => {
-  let ignore = false;
-
-  async function loadMe() {
-    if (!getToken()) {
-      setIsAdmin(false);
-      return;
-    }
-    try {
-      const me = await api.me();
-      if (!ignore) setIsAdmin(me?.role === "admin");
-    } catch {
-      if (!ignore) setIsAdmin(false);
-    }
-  }
-
-  loadMe();
-  return () => {
-    ignore = true;
-  };
-}, [authedTick]);
 
   return (
     <div className="page">
-      <Header
-        authed={authed}
-        onLogout={logout}
-        showAdmin={isAdmin}
-        onAdmin={() => setAdminOpen(true)}
-      />
+      <Header authed={authed} onLogout={logout} />
+
       {!authed ? (
         <Auth onAuthed={onAuthed} />
-      ) : adminOpen ? (
-        <Admin />
-      ) : openLessonId ? (
-        <LessonViewer
-          lessonId={openLessonId}
-          onBack={() => setOpenLessonId(null)}
-          onMarkComplete={async (id) => {
-            await api.markCompleted(id);
-            alert("Marked completed ✅");
-          }}
-        />
       ) : selectedCourse ? (
-        <CoursePage
+        <CourseShell
           course={selectedCourse}
-          onBack={() => setSelectedCourse(null)}
-          onOpenLesson={(id) => setOpenLessonId(id)}
+          onBackToCourses={() => {
+            setSelectedCourse(null);
+            setOpenLessonId(null);
+          }}
+          openLessonId={openLessonId}
+          setOpenLessonId={setOpenLessonId}
         />
       ) : (
         <Courses onSelectCourse={setSelectedCourse} />

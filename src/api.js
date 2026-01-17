@@ -1,38 +1,19 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
 
-// ✅ Named exports (your App.jsx imports these)
-export function getToken() {
+function getToken() {
   return localStorage.getItem("token") || "";
 }
-
-export function setToken(token) {
+function setToken(token) {
   localStorage.setItem("token", token);
 }
-
-export function clearToken() {
+function clearToken() {
   localStorage.removeItem("token");
-}
-
-export async function getMe() {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-
-  const res = await fetch(`${API_URL}/auth/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) return null;
-  return await res.json();
 }
 
 async function request(path, opts = {}) {
   const url = `${API_BASE}${path}`;
 
-  const headers = {
-    ...(opts.headers || {}),
-  };
+  const headers = { ...(opts.headers || {}) };
 
   // Only set JSON content-type when sending a JSON body
   if (opts.body !== undefined) {
@@ -74,6 +55,7 @@ async function request(path, opts = {}) {
 }
 
 export const api = {
+  // token helpers (optional for UI)
   getToken,
   setToken,
   clearToken,
@@ -86,18 +68,25 @@ export const api = {
       { method: "POST" }
     ),
 
-  login: (email, password) =>
-    request(
+  // ✅ Auto-store token after successful login
+  login: async (email, password) => {
+    const data = await request(
       `/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(
         password
       )}`,
       { method: "POST" }
-    ),
+    );
 
-  // ✅ role check
-  me: () => request(`/auth/me`, { auth: true }),
+    if (data?.access_token) {
+      setToken(data.access_token);
+    }
+    return data;
+  },
 
-  // ✅ Use /courses (no trailing slash) to avoid 307 redirects
+  // ✅ Add this if you implement GET /auth/me on backend
+  me: () => request("/auth/me", { auth: true }),
+
+  // Avoid 307 redirects: use /courses (no trailing slash) if your backend redirects
   listCourses: () => request("/courses"),
   getCourse: (courseId) => request(`/courses/${courseId}`),
   getLesson: (lessonId) => request(`/lessons/${lessonId}`),
