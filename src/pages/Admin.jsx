@@ -1,20 +1,33 @@
 import { useEffect, useState } from "react";
-import { getMe } from "../api";
+import { getMe } from "../api.js";
 
-export default function Admin() {
+export default function Admin({ onBack }) {
   const [me, setMe] = useState(null);
   const [err, setErr] = useState("");
 
   useEffect(() => {
     getMe()
       .then(setMe)
-      .catch(() => setErr("Not allowed / not logged in"));
+      .catch((e) => setErr(e.message || "Not allowed / not logged in"));
   }, []);
 
-  if (err) return <div>{err}</div>;
-  if (!me) return <div>Loading...</div>;
+  return (
+    <div className="card">
+      <div className="row space">
+        <div className="h2">Admin</div>
+        <button className="btn" onClick={onBack}>Back</button>
+      </div>
 
-  if (me.role !== "admin") return <div>Forbidden</div>;
+      {err ? <div className="error">{err}</div> : null}
+      {!err && !me ? <div className="hint">Loading...</div> : null}
 
-  return <div>Admin panel here</div>;
+      {me && me.role !== "admin" ? (
+        <div className="error">Forbidden (not an admin)</div>
+      ) : null}
+
+      {me && me.role === "admin" ? (
+        <div className="hint">✅ Admin panel ready.</div>
+      ) : null}
+    </div>
+  );
 }
