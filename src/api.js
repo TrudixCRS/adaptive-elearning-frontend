@@ -13,9 +13,7 @@ function clearToken() {
 async function request(path, opts = {}) {
   const url = `${API_BASE}${path}`;
 
-  const headers = {
-    ...(opts.headers || {}),
-  };
+  const headers = { ...(opts.headers || {}) };
 
   // Only set JSON content-type when sending a JSON body
   if (opts.body !== undefined) {
@@ -43,7 +41,11 @@ async function request(path, opts = {}) {
 
   if (!res.ok) {
     const msg =
-      (data && data.detail && (typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail))) ||
+      (data &&
+        data.detail &&
+        (typeof data.detail === "string"
+          ? data.detail
+          : JSON.stringify(data.detail))) ||
       (typeof data === "string" ? data : JSON.stringify(data)) ||
       `Request failed: ${res.status}`;
     throw new Error(msg);
@@ -53,32 +55,54 @@ async function request(path, opts = {}) {
 }
 
 export const api = {
-  // token helpers (used by App.jsx)
+  // token helpers (optional for UI)
   getToken,
   setToken,
   clearToken,
 
   register: (email, password, full_name) =>
     request(
-      `/auth/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&full_name=${encodeURIComponent(full_name)}`,
+      `/auth/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(
+        password
+      )}&full_name=${encodeURIComponent(full_name)}`,
       { method: "POST" }
     ),
 
-  login: (email, password) =>
-    request(`/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, { method: "POST" }),
+  // ✅ Auto-store token after successful login
+  login: async (email, password) => {
+    const data = await request(
+      `/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(
+        password
+      )}`,
+      { method: "POST" }
+    );
 
-  listCourses: () => request("/courses/"),
+    if (data?.access_token) {
+      setToken(data.access_token);
+    }
+    return data;
+  },
+
+  // ✅ Add this if you implement GET /auth/me on backend
+  me: () => request("/auth/me", { auth: true }),
+
+  // Avoid 307 redirects: use /courses (no trailing slash) if your backend redirects
+  listCourses: () => request("/courses"),
   getCourse: (courseId) => request(`/courses/${courseId}`),
   getLesson: (lessonId) => request(`/lessons/${lessonId}`),
 
   nextRecommendation: (courseId, mode) =>
-    request(`/recommendation/next?course_id=${courseId}&mode=${mode}`, { auth: true }),
+    request(`/recommendation/next?course_id=${courseId}&mode=${mode}`, {
+      auth: true,
+    }),
 
   markCompleted: (lessonId, score = null) => {
     const qs = score !== null ? `&score=${encodeURIComponent(score)}` : "";
-    return request(`/progress/complete?lesson_id=${lessonId}${qs}`, { method: "POST", auth: true });
+    return request(`/progress/complete?lesson_id=${lessonId}${qs}`, {
+      method: "POST",
+      auth: true,
+    });
   },
 
-  // optional but useful for UI later
   getMyProgress: () => request(`/progress/me`, { auth: true }),
 };
