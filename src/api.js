@@ -12,10 +12,15 @@ function clearToken() {
 
 async function request(path, opts = {}) {
   const url = `${API_BASE}${path}`;
+
   const headers = {
-    "Content-Type": "application/json",
     ...(opts.headers || {}),
   };
+
+  // Only set JSON content-type when sending a JSON body
+  if (opts.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (opts.auth) {
     const token = getToken();
@@ -25,7 +30,7 @@ async function request(path, opts = {}) {
   const res = await fetch(url, {
     method: opts.method || "GET",
     headers,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
   });
 
   const text = await res.text();
@@ -62,7 +67,7 @@ export const api = {
   login: (email, password) =>
     request(`/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, { method: "POST" }),
 
-  listCourses: () => request("/courses"),
+  listCourses: () => request("/courses/"),
   getCourse: (courseId) => request(`/courses/${courseId}`),
   getLesson: (lessonId) => request(`/lessons/${lessonId}`),
 
