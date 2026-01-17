@@ -1,3 +1,4 @@
+// frontend/src/api.js
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
 
 function getToken() {
@@ -12,7 +13,6 @@ function clearToken() {
 
 async function request(path, opts = {}) {
   const url = `${API_BASE}${path}`;
-
   const headers = { ...(opts.headers || {}) };
 
   // Only set JSON content-type when sending a JSON body
@@ -83,7 +83,7 @@ export const api = {
     return data;
   },
 
-  // ✅ Add this if you implement GET /auth/me on backend
+  // ✅ Works if you added GET /auth/me on backend
   me: () => request("/auth/me", { auth: true }),
 
   // Avoid 307 redirects: use /courses (no trailing slash) if your backend redirects
